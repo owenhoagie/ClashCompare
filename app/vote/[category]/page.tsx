@@ -1,6 +1,36 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+
+// Animated Skip Button
+function SkipButton({ onSkip, children, madeDecision = false }: { onSkip: () => void, children: React.ReactNode, madeDecision?: boolean }) {
+  const [animating, setAnimating] = useState(false)
+
+  function handleClick() {
+    if (madeDecision) return;
+    setAnimating(true)
+    setTimeout(() => {
+      setAnimating(false)
+      onSkip()
+    }, 180)
+  }
+
+  return (
+    <button
+      onClick={handleClick}
+      className={[
+        'px-6 py-3 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg transition-colors',
+        animating && !madeDecision ? 'scale-90 opacity-60' : 'scale-100 opacity-100',
+        'transition-transform transition-opacity duration-150 mx-2',
+        !madeDecision ? 'hover:bg-gray-300 dark:hover:bg-gray-700' : '',
+      ].join(' ')}
+      style={{ outline: 'none' }}
+      tabIndex={madeDecision ? -1 : 0}
+    >
+      {children}
+    </button>
+  )
+}
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { Card, Emote, Category, VoteSubmission } from '../../../types'
@@ -10,7 +40,7 @@ import LoadingSpinner from '../../../components/LoadingSpinner'
 export default function VotePage({ params }: { params: { category: string } }) {
   const router = useRouter()
   const category = params.category as Category
-  
+
   const [item1, setItem1] = useState<Card | Emote | null>(null)
   const [item2, setItem2] = useState<Card | Emote | null>(null)
   const [selected, setSelected] = useState<number | null>(null)
@@ -23,6 +53,7 @@ export default function VotePage({ params }: { params: { category: string } }) {
   const [originalElo1, setOriginalElo1] = useState<number | null>(null) // Original Elo for item1
   const [originalElo2, setOriginalElo2] = useState<number | null>(null) // Original Elo for item2
   const [isTransitioning, setIsTransitioning] = useState(false) // Track card transition animation
+  const [madeDecision, setMadeDecision] = useState(false) // Prevent multiple actions per round
 
   useEffect(() => {
     if (category !== 'cards' && category !== 'emotes') {
@@ -106,6 +137,7 @@ export default function VotePage({ params }: { params: { category: string } }) {
         setItem1(item1Data)
         setItem2(item2Data)
         setIsTransitioning(false)
+        setMadeDecision(false)
       }, 150)
     } catch (err: any) {
       setError(err.message || 'Failed to load items')
@@ -127,56 +159,68 @@ export default function VotePage({ params }: { params: { category: string } }) {
     }
   }
 
-  async function handleVote(winnerId: number) {
-    if (!item1 || !item2) return
-    
-    const loserId = winnerId === item1.id ? item2.id : item1.id
-    
+  async function handleVote(winnerId: number | null) {
+    if (!item1 || !item2 || madeDecision) return;
+    setMadeDecision(true)
+
     // Store original Elo values before updating
-    const origElo1 = item1.elo
-    const origElo2 = item2.elo
-    
-    // Store original Elo values in state
-    setOriginalElo1(origElo1)
-    setOriginalElo2(origElo2)
-    
-    // Calculate Elo changes immediately using the formula
-    let change1: number
-    let change2: number
-    let newElo1: number
-    let newElo2: number
-    
-    if (item1.id === winnerId) {
+    const origElo1 = item1.elo;
+    const origElo2 = item2.elo;
+    setOriginalElo1(origElo1);
+    setOriginalElo2(origElo2);
+
+    let change1: number;
+    let change2: number;
+    let newElo1: number;
+    let newElo2: number;
+    let isDraw = false;
+    let winner_id = winnerId;
+    let loser_id = null;
+
+    if (winnerId === null) {
+      // Draw: use standard Elo draw formula for both sides
+      isDraw = true;
+      winner_id = item1.id;
+      loser_id = item2.id;
+      change1 = calculateEloChange(origElo1, origElo2, true);
+      change2 = calculateEloChange(origElo2, origElo1, true);
+      newElo1 = origElo1 + change1;
+      newElo2 = origElo2 + change2;
+      setSelected(null); // No highlight for draw
+    } else if (item1.id === winnerId) {
       // item1 wins, item2 loses
-      change1 = calculateEloChange(origElo1, origElo2, false)
-      change2 = -change1 // Loser gets negative change
-      newElo1 = origElo1 + change1
-      newElo2 = origElo2 + change2
+      change1 = calculateEloChange(origElo1, origElo2, false);
+      change2 = -change1;
+      newElo1 = origElo1 + change1;
+      newElo2 = origElo2 + change2;
+      loser_id = item2.id;
+      setSelected(winnerId);
     } else {
       // item2 wins, item1 loses
-      change2 = calculateEloChange(origElo2, origElo1, false)
-      change1 = -change2 // Loser gets negative change
-      newElo1 = origElo1 + change1
-      newElo2 = origElo2 + change2
+      change2 = calculateEloChange(origElo2, origElo1, false);
+      change1 = -change2;
+      newElo1 = origElo1 + change1;
+      newElo2 = origElo2 + change2;
+      loser_id = item1.id;
+      setSelected(winnerId);
     }
-    
-    // Set Elo changes and reveal Elo immediately (no API wait)
-    setEloChange1(change1)
-    setEloChange2(change2)
-    setEloRevealed(true) // Reveal actual Elo values
-    
-    // Mark selection
-    setSelected(winnerId)
-    
+
+    setEloChange1(change1);
+    setEloChange2(change2);
+    setEloRevealed(true);
+
     // Update local state with calculated new Elo values
-    if (item1.id === winnerId) {
-      setItem1({ ...item1, elo: newElo1, wins: item1.wins + 1 })
-      setItem2({ ...item2, elo: newElo2, losses: item2.losses + 1 })
+    if (winnerId === null) {
+      setItem1({ ...item1, elo: newElo1 });
+      setItem2({ ...item2, elo: newElo2 });
+    } else if (item1.id === winnerId) {
+      setItem1({ ...item1, elo: newElo1, wins: item1.wins + 1 });
+      setItem2({ ...item2, elo: newElo2, losses: item2.losses + 1 });
     } else {
-      setItem1({ ...item1, elo: newElo1, losses: item1.losses + 1 })
-      setItem2({ ...item2, elo: newElo2, wins: item2.wins + 1 })
+      setItem1({ ...item1, elo: newElo1, losses: item1.losses + 1 });
+      setItem2({ ...item2, elo: newElo2, wins: item2.wins + 1 });
     }
-    
+
     // Submit vote in background (don't wait for response)
     fetch('/api/vote', {
       method: 'POST',
@@ -184,20 +228,19 @@ export default function VotePage({ params }: { params: { category: string } }) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        winner_id: winnerId,
-        loser_id: loserId,
-        is_draw: false,
+        winner_id,
+        loser_id,
+        is_draw: isDraw,
         category,
       }),
     }).catch((err) => {
-      console.error('Vote submission error:', err)
-    })
-    
-    // Wait longer to let users see the revealed Elo before loading next pair
+      console.error('Vote submission error:', err);
+    });
+
     setTimeout(() => {
-      setSelected(null)
-      loadRandomItems()
-    }, 1000) // 1.0 second delay to read Elo
+      setSelected(null);
+      loadRandomItems();
+    }, 1000);
   }
 
   if (isLoading && !item1 && !item2) {
@@ -246,7 +289,7 @@ export default function VotePage({ params }: { params: { category: string } }) {
           <VoteCard
             item={item1}
             category={category}
-            onClick={() => handleVote(item1.id)}
+            onClick={() => !madeDecision && handleVote(item1.id)}
             isSelected={selected === item1.id}
             isLoading={false}
             showElo={showElo}
@@ -254,13 +297,14 @@ export default function VotePage({ params }: { params: { category: string } }) {
             eloChange={eloChange1}
             originalElo={originalElo1}
             isTransitioning={isTransitioning}
+            madeDecision={madeDecision}
           />
         )}
         {item2 && (
           <VoteCard
             item={item2}
             category={category}
-            onClick={() => handleVote(item2.id)}
+            onClick={() => !madeDecision && handleVote(item2.id)}
             isSelected={selected === item2.id}
             isLoading={false}
             showElo={showElo}
@@ -268,18 +312,37 @@ export default function VotePage({ params }: { params: { category: string } }) {
             eloChange={eloChange2}
             originalElo={originalElo2}
             isTransitioning={isTransitioning}
+            madeDecision={madeDecision}
           />
         )}
       </div>
 
-      <div className="text-center">
-        <button
-          onClick={loadRandomItems}
-          className="px-6 py-3 bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg hover:bg-gray-300 dark:hover:bg-gray-700 transition-colors"
+
+      <div className="flex justify-center gap-4 mt-2">
+        <SkipButton
+          onSkip={() => {
+            if (!madeDecision) {
+              setMadeDecision(true);
+              handleVote(null);
+            }
+          }}
+          madeDecision={madeDecision}
         >
-          Skip This Pair
-        </button>
+          Draw
+        </SkipButton>
+        <SkipButton
+          onSkip={() => {
+            if (!madeDecision) {
+              setMadeDecision(true);
+              loadRandomItems();
+            }
+          }}
+          madeDecision={madeDecision}
+        >
+          Skip
+        </SkipButton>
       </div>
+
     </div>
   )
 }

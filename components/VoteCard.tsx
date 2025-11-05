@@ -15,9 +15,10 @@ interface VoteCardProps {
   eloChange?: number | null // Elo change value (null means show original, number means show change)
   originalElo?: number | null // Original Elo before vote (for display)
   isTransitioning?: boolean // Whether card is transitioning
+  madeDecision?: boolean // Whether a decision has been made (disable hover)
 }
 
-export default function VoteCard({ item, category, onClick, isSelected, isLoading, showElo = false, eloRevealed = false, eloChange = null, originalElo: propOriginalElo = null, isTransitioning = false }: VoteCardProps) {
+export default function VoteCard({ item, category, onClick, isSelected, isLoading, showElo = false, eloRevealed = false, eloChange = null, originalElo: propOriginalElo = null, isTransitioning = false, madeDecision = false }: VoteCardProps) {
   const isCard = category === 'cards'
   const card = isCard ? (item as Card) : null
   const [showRipple, setShowRipple] = useState(false)
@@ -44,21 +45,24 @@ export default function VoteCard({ item, category, onClick, isSelected, isLoadin
     <button
       onClick={onClick}
       disabled={isLoading}
-      className={`
-        relative flex flex-col items-center justify-center p-8 rounded-2xl
-        bg-white dark:bg-gray-800 border-4 transform
-        transition-all duration-300 ease-out
-        ${isTransitioning 
-          ? 'opacity-0 scale-95 translate-y-4' 
-          : 'opacity-100 scale-100 translate-y-0'
-        }
-        ${isSelected 
-          ? 'border-blue-500 scale-[1.03] shadow-xl shadow-blue-500/30 z-10' 
-          : 'border-gray-300 dark:border-gray-700 hover:border-blue-300 hover:scale-[1.02]'
-        }
-        ${isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-        min-h-[400px] w-full
-      `}
+      className={
+        [
+          'relative flex flex-col items-center justify-center p-8 rounded-2xl',
+          'bg-white dark:bg-gray-800 border-4 transform',
+          'transition-all duration-300 ease-out',
+          isTransitioning
+            ? 'opacity-0 scale-95 translate-y-4'
+            : 'opacity-100 scale-100 translate-y-0',
+          isSelected
+            ? 'border-blue-500 scale-[1.03] shadow-xl shadow-blue-500/30 z-10'
+            : [
+                'border-gray-300 dark:border-gray-700',
+                !madeDecision && !isLoading ? 'hover:border-blue-300 hover:scale-[1.02]' : '',
+              ].join(' '),
+          isLoading ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
+          'min-h-[400px] w-full',
+        ].join(' ')
+      }
     >
       <div className="relative w-48 h-48 mb-6">
         <Image
