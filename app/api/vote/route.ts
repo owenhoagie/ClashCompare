@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
-import { VoteSubmission } from '@/types'
+import { supabase } from '../../../lib/supabase'
+import { VoteSubmission } from '../../../types'
 
 const map = {
   'cards': 'card',

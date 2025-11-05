@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
-import { Card, Emote } from '@/types'
+import { Card, Emote } from '../types'
 
 interface VoteCardProps {
   item: Card | Emote

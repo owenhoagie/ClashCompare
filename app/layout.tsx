@@ -15,6 +15,21 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <script dangerouslySetInnerHTML={{__html:`
+          (function() {
+            let mouseX = 50, mouseY = 50;
+            document.addEventListener('mousemove', function(e) {
+              mouseX = (e.clientX / window.innerWidth) * 100;
+              mouseY = (e.clientY / window.innerHeight) * 100;
+            });
+            function animate() {
+              document.body.style.setProperty('--mouse-x', mouseX + '%');
+              document.body.style.setProperty('--mouse-y', mouseY + '%');
+              requestAnimationFrame(animate);
+            }
+            animate();
+          })();
+        `}} />
         <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between h-16">

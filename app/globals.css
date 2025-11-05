@@ -14,10 +14,60 @@
   }
 }
 
+
 body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 1;
+  background:
+    url('data:image/svg+xml;utf8,<svg width="60" height="52" viewBox="0 0 60 52" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="30,2 58,15 58,41 30,54 2,41 2,15" stroke="%233b82f6" stroke-width="1" fill="none" opacity="0.08"/></svg>');
+  background-size: 60px 52px;
+  background-repeat: repeat;
+  animation: hex-move 12s linear infinite;
+}
+
+@keyframes ripple-pulse {
+  0%, 100% {
+    background-size: 100vw 100vh, 60px 52px;
+    opacity: 1;
+  }
+  50% {
+    background-size: 110vw 110vh, 60px 52px;
+    opacity: 0.92;
+  }
+}
+
+@keyframes hex-move {
+  0% {
+    background-position: 0 0, 0 0;
+  }
+  100% {
+    background-position: 0 0, 60px 52px;
+  }
+}
+
+@keyframes stripes-move {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 160px 160px;
+  }
 }
 
 @media (prefers-color-scheme: dark) {

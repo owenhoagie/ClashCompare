@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
-import { Card, Emote, Category, VoteSubmission } from '@/types'
-import VoteCard from '@/components/VoteCard'
-import LoadingSpinner from '@/components/LoadingSpinner'
+import { supabase } from '../../../lib/supabase'
+import { Card, Emote, Category, VoteSubmission } from '../../../types'
+import VoteCard from '../../../components/VoteCard'
+import LoadingSpinner from '../../../components/LoadingSpinner'
 
 export default function VotePage({ params }: { params: { category: string } }) {
   const router = useRouter()

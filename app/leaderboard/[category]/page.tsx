@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { supabase } from '@/lib/supabase'
-import { Card, Emote, Category } from '@/types'
-import { getTier, getTierColor, formatElo } from '@/lib/utils'
-import LoadingSpinner from '@/components/LoadingSpinner'
+import { supabase } from '../../../lib/supabase'
+import { Card, Emote, Category } from '../../../types'
+import { getTier, getTierColor, formatElo } from '../../../lib/utils'
+import LoadingSpinner from '../../../components/LoadingSpinner'
 
 export default function LeaderboardPage({ params }: { params: { category: string } }) {
   const router = useRouter()
