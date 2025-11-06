@@ -173,13 +173,13 @@ export default function LeaderboardPage({ params }: { params: { category: string
                       <div className="text-base font-bold text-gray-900 dark:text-white">{formatElo(item.elo)}</div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap align-middle">
-                      <div className="text-base text-gray-900 dark:text-white flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                      <div className="text-base text-gray-900 dark:text-white flex flex-row items-center gap-2">
                         <span className="text-green-600 dark:text-green-400 font-bold">{item.wins}</span>
                         <span className="text-gray-400 dark:text-gray-500">/</span>
                         <span className="text-red-600 dark:text-red-400 font-bold">{item.losses}</span>
                         <span className="text-gray-400 dark:text-gray-500">/</span>
                         <span className="text-gray-600 dark:text-gray-400 font-bold">{item.draws}</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">{totalVotes} total</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400 ml-2 hidden md:inline">{totalVotes} total</span>
                       </div>
                     </td>
                   </tr>
