@@ -134,6 +134,11 @@ export default function VotePage() {
         }
       }
 
+      // --- DEBUG: Always pick BLANK (id BLANK) as one of the items ---
+      // To remove this debug, delete or comment out this block
+      // id1 = 160;
+      // id2 = ids.find(id => id !== id1) ?? ids[0];
+
       // Fetch the full data for both items
       const { data: item1Data, error: item1Error } = await supabase
         .from(tableName)
@@ -239,6 +244,7 @@ export default function VotePage() {
     }
 
     // Submit vote in background (don't wait for response)
+    // console.log('Submitting vote:', { winner_id, loser_id, is_draw: isDraw, category });
     fetch('/api/vote', {
       method: 'POST',
       headers: {
