@@ -307,7 +307,7 @@ export default function VotePage() {
         </div>
       )}
 
-      <div className="grid md:grid-cols-2 gap-8 mb-8">
+  <div className="flex flex-row gap-1 md:gap-3 lg:gap-4 xl:gap-6 mb-8 w-full">
         {item1 && (
           <VoteCard
             item={item1}

@@ -42,26 +42,55 @@ export default function Navbar() {
             <NavLink href="/auth" active={highlight && pathname.startsWith('/auth')}>Login</NavLink>
           </div>
           {/* Mobile Hamburger */}
+          {/* Animated Hamburger Button */}
           <button
-            className="md:hidden flex items-center justify-center w-10 h-10 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+            className="md:hidden flex flex-col items-center justify-center w-10 h-10 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 relative group"
             aria-label="Open menu"
             onClick={() => setMenuOpen(v => !v)}
           >
-            <span className="block w-6 h-0.5 bg-gray-800 dark:bg-white mb-1 transition-all" style={{transform: menuOpen ? 'rotate(45deg) translateY(7px)' : 'none'}}></span>
-            <span className={`block w-6 h-0.5 bg-gray-800 dark:bg-white mb-1 transition-all ${menuOpen ? 'opacity-0' : ''}`}></span>
-            <span className="block w-6 h-0.5 bg-gray-800 dark:bg-white transition-all" style={{transform: menuOpen ? 'rotate(-45deg) translateY(-7px)' : 'none'}}></span>
+            <span
+              className={`absolute left-2 right-2 top-3 h-0.5 bg-gray-800 dark:bg-white rounded transition-all duration-300 ${menuOpen ? 'rotate-45 translate-y-2' : ''}`}
+            />
+            <span
+              className={`absolute left-2 right-2 top-5 h-0.5 bg-gray-800 dark:bg-white rounded transition-all duration-300 ${menuOpen ? 'opacity-0' : ''}`}
+            />
+            <span
+              className={`absolute left-2 right-2 top-7 h-0.5 bg-gray-800 dark:bg-white rounded transition-all duration-300 ${menuOpen ? '-rotate-45 -translate-y-2' : ''}`}
+            />
           </button>
         </div>
       </div>
-      {/* Mobile Menu */}
-      <div className={`md:hidden fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${menuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}
-        onClick={() => setMenuOpen(false)}
-      />
-      <div className={`md:hidden fixed top-0 right-0 w-64 h-full z-50 bg-white dark:bg-gray-950 shadow-lg transform transition-transform duration-300 ${menuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <div className="flex flex-col gap-2 p-6 pt-16">
-          <NavLink href="/leaderboard/cards" onClick={() => setMenuOpen(false)} active={highlight && pathname.startsWith('/leaderboard/cards')}>Cards Leaderboard</NavLink>
-          <NavLink href="/leaderboard/emotes" onClick={() => setMenuOpen(false)} active={highlight && pathname.startsWith('/leaderboard/emotes')}>Emotes Leaderboard</NavLink>
-          <NavLink href="/auth" onClick={() => setMenuOpen(false)} active={highlight && pathname.startsWith('/auth')}>Login</NavLink>
+      {/* Mobile Dropdown Menu - Modern Glassmorphism Redesign */}
+      <div className="md:hidden relative">
+        <div
+          className={`absolute right-4 mt-2 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg shadow-lg z-50 overflow-hidden transition-all duration-200 origin-top-right ${menuOpen ? 'scale-100 opacity-100 pointer-events-auto translate-y-0' : 'scale-95 opacity-0 pointer-events-none -translate-y-2'}`}
+        >
+          <ul className="flex flex-col py-1 gap-0.5">
+            <li>
+              <NavLink href="/leaderboard/cards" onClick={() => setMenuOpen(false)} active={highlight && pathname.startsWith('/leaderboard/cards')}>
+                <span className="block px-4 py-0 text-sm font-medium relative transition-colors group">
+                  Cards Leaderboard
+                  <span className={`absolute left-4 right-4 -bottom-0.5 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-transform origin-left ${highlight && pathname.startsWith('/leaderboard/cards') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`}></span>
+                </span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink href="/leaderboard/emotes" onClick={() => setMenuOpen(false)} active={highlight && pathname.startsWith('/leaderboard/emotes')}>
+                <span className="block px-4 py-0 text-sm font-medium relative transition-colors group">
+                  Emotes Leaderboard
+                  <span className={`absolute left-4 right-4 -bottom-0.5 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-transform origin-left ${highlight && pathname.startsWith('/leaderboard/emotes') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`}></span>
+                </span>
+              </NavLink>
+            </li>
+            <li>
+              <NavLink href="/auth" onClick={() => setMenuOpen(false)} active={highlight && pathname.startsWith('/auth')}>
+                <span className="block px-4 py-0 text-sm font-medium relative transition-colors group">
+                  Login
+                  <span className={`absolute left-4 right-4 -bottom-0.5 h-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full transition-transform origin-left ${highlight && pathname.startsWith('/auth') ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`}></span>
+                </span>
+              </NavLink>
+            </li>
+          </ul>
         </div>
       </div>
     </nav>
