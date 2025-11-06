@@ -37,7 +37,7 @@ export default function Home() {
             <div className="relative z-10 flex flex-col items-center">
               <h2 className="text-3xl font-bold mb-2">Cards</h2>
               <p className="text-blue-100 text-lg text-center">
-                Vote on which cards are more annoying.<br />Which ones make you tilt?
+                Rank the most annoying cards.<br />Which ones make you tilt?
               </p>
             </div>
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800 opacity-0 group-hover:opacity-100 transition-opacity"></div>
