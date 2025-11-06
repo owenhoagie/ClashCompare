@@ -31,15 +31,19 @@ function SkipButton({ onSkip, children, madeDecision = false }: { onSkip: () => 
     </button>
   )
 }
-import { useRouter } from 'next/navigation'
+
+import { useRouter, useParams } from 'next/navigation'
 import { supabase } from '../../../lib/supabase'
 import { Card, Emote, Category, VoteSubmission } from '../../../types'
 import VoteCard from '../../../components/VoteCard'
 import LoadingSpinner from '../../../components/LoadingSpinner'
 
-export default function VotePage({ params }: { params: { category: string } }) {
+
+
+export default function VotePage() {
   const router = useRouter()
-  const category = params.category as Category
+  const params = useParams();
+  const category = params.category as Category;
 
   const [item1, setItem1] = useState<Card | Emote | null>(null)
   const [item2, setItem2] = useState<Card | Emote | null>(null)
@@ -54,16 +58,39 @@ export default function VotePage({ params }: { params: { category: string } }) {
   const [originalElo2, setOriginalElo2] = useState<number | null>(null) // Original Elo for item2
   const [isTransitioning, setIsTransitioning] = useState(false) // Track card transition animation
   const [madeDecision, setMadeDecision] = useState(false) // Prevent multiple actions per round
+  const [allIds, setAllIds] = useState<number[]>([])
 
   useEffect(() => {
     if (category !== 'cards' && category !== 'emotes') {
       router.push('/')
       return
     }
-    loadRandomItems()
+    // Fetch all IDs once on mount/category change
+    (async () => {
+      setIsLoading(true)
+      setError(null)
+      const { data: allData, error: allError } = await supabase
+        .from(category)
+        .select('id')
+      if (allError) {
+        setError('Failed to load items.');
+        setIsLoading(false);
+        return;
+      }
+      if (!allData || allData.length < 2) {
+        setError('Not enough items to vote on. Please add more items to the database.');
+        setIsLoading(false);
+        return;
+      }
+      setAllIds(allData.map((row: any) => row.id));
+      setIsLoading(false);
+      loadRandomItems(allData.map((row: any) => row.id));
+    })();
   }, [category, router])
 
-  async function loadRandomItems() {
+  async function loadRandomItems(cachedIds?: number[]) {
+    // Determine the correct table name based on category
+    const tableName = category;
     // Don't show loading spinner if we already have items (for smooth transitions)
     if (!item1 || !item2) {
       setIsLoading(true)
@@ -82,38 +109,28 @@ export default function VotePage({ params }: { params: { category: string } }) {
     setOriginalElo2(null)
     
     try {
-      const tableName = category
-      
-      // First, get all IDs to randomly select from
-      const { data: allData, error: allError } = await supabase
-        .from(tableName)
-        .select('id')
-
-      if (allError) throw allError
-      if (!allData || allData.length < 2) {
-        setError('Not enough items to vote on. Please add more items to the database.')
-        setIsLoading(false)
-        return
+      const ids = cachedIds || allIds;
+      if (!ids || ids.length < 2) {
+        setError('Not enough items to vote on. Please add more items to the database.');
+        setIsLoading(false);
+        return;
       }
-
       // Randomly select two different IDs
-      const shuffled = [...allData].sort(() => Math.random() - 0.5)
-      let id1 = shuffled[0].id
-      let id2 = shuffled[1].id
-      
+      const shuffled = [...ids].sort(() => Math.random() - 0.5);
+      let id1 = shuffled[0];
+      let id2 = shuffled[1];
       // Ensure they're different and not the same as current items
       if (id1 === id2 && shuffled.length > 2) {
-        id2 = shuffled[2].id
+        id2 = shuffled[2];
       }
-      
       // If we have current items, try to avoid showing the same pair
       if (item1 && item2) {
-        let attempts = 0
+        let attempts = 0;
         while ((id1 === item1.id && id2 === item2.id) || (id1 === item2.id && id2 === item1.id)) {
-          if (attempts++ > 10) break // Prevent infinite loop
-          const newShuffle = [...allData].sort(() => Math.random() - 0.5)
-          id1 = newShuffle[0].id
-          id2 = newShuffle[1].id
+          if (attempts++ > 10) break; // Prevent infinite loop
+          const newShuffle = [...ids].sort(() => Math.random() - 0.5);
+          id1 = newShuffle[0];
+          id2 = newShuffle[1];
         }
       }
 
