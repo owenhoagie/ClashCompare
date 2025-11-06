@@ -1,71 +1,19 @@
-import type { Metadata } from 'next'
+
+
 import './globals.css'
-import Link from 'next/link'
+import Navbar from './components/Navbar'
 
-export const metadata: Metadata = {
-  title: 'ClashCompare - Rank the Most Annoying Cards & Emotes',
-  description: 'Community-driven ranking of Clash Royale cards and emotes using Elo-based voting',
-}
-
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <script dangerouslySetInnerHTML={{__html:`
-          (function() {
-            let mouseX = 50, mouseY = 50;
-            document.addEventListener('mousemove', function(e) {
-              mouseX = (e.clientX / window.innerWidth) * 100;
-              mouseY = (e.clientY / window.innerHeight) * 100;
-            });
-            function animate() {
-              document.body.style.setProperty('--mouse-x', mouseX + '%');
-              document.body.style.setProperty('--mouse-y', mouseY + '%');
-              requestAnimationFrame(animate);
-            }
-            animate();
-          })();
-        `}} />
-        <nav className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between h-16">
-              <div className="flex items-center space-x-8">
-                <Link href="/" className="text-2xl font-bold text-gray-900 dark:text-white">
-                  ClashCompare
-                </Link>
-                <div className="hidden md:flex space-x-4">
-                  <Link
-                    href="/leaderboard/cards"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                  >
-                    Cards Leaderboard
-                  </Link>
-                  <Link
-                    href="/leaderboard/emotes"
-                    className="px-3 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                  >
-                    Emotes Leaderboard
-                  </Link>
-                </div>
-              </div>
-              <div className="flex items-center">
-                <Link
-                  href="/auth"
-                  className="px-4 py-2 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-                >
-                  Login
-                </Link>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <Navbar />
         <main className="min-h-screen">{children}</main>
       </body>
     </html>
   )
 }
+
+// Client-side navbar in a separate file
+// Create app/components/Navbar.tsx as a client component
 
