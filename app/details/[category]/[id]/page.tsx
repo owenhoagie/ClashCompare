@@ -113,7 +113,7 @@ export default function DetailsPage({
         href={`/leaderboard/${category}`}
         className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-6"
       >
-        ← Back to Leaderboard
+        Back to Leaderboard
       </Link>
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
