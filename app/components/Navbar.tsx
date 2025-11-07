@@ -39,7 +39,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-2">
             <NavLink href="/leaderboard/cards" active={highlight && pathname.startsWith('/leaderboard/cards')}>Cards Leaderboard</NavLink>
             <NavLink href="/leaderboard/emotes" active={highlight && pathname.startsWith('/leaderboard/emotes')}>Emotes Leaderboard</NavLink>
-            <NavLink href="/auth" active={highlight && pathname.startsWith('/auth')}>Login</NavLink>
+            {/* <NavLink href="/auth" active={highlight && pathname.startsWith('/auth')}>Login</NavLink> */}
           </div>
           {/* Mobile Hamburger */}
           {/* Animated Hamburger Button */}
@@ -82,6 +82,8 @@ export default function Navbar() {
                 </span>
               </NavLink>
             </li>
+
+            {/*
             <li>
               <NavLink href="/auth" onClick={() => setMenuOpen(false)} active={highlight && pathname.startsWith('/auth')}>
                 <span className="block px-4 py-0 text-sm font-medium relative transition-colors group">
@@ -90,6 +92,8 @@ export default function Navbar() {
                 </span>
               </NavLink>
             </li>
+            */}
+
           </ul>
         </div>
       </div>
