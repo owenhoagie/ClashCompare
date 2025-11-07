@@ -14,50 +14,44 @@ export default function DetailsPage({
 }: { 
   params: { category: string; id: string } 
 }) {
-  const router = useRouter()
-  const category = params.category as Category
-  const id = parseInt(params.id)
-  
-  const [item, setItem] = useState<Card | Emote | null>(null)
-  const [rank, setRank] = useState<number | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter();
+  const category = params.category as Category;
+  const id = parseInt(params.id);
+
+  const [item, setItem] = useState<Card | Emote | null>(null);
+  const [rank, setRank] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (category !== 'cards' && category !== 'emotes') {
-      router.push('/')
-      return
+      router.push('/');
+      return;
     }
     if (isNaN(id)) {
-      router.push(`/leaderboard/${category}`)
-      return
+      router.push(`/leaderboard/${category}`);
+      return;
     }
-    loadItemDetails()
-  }, [category, id, router])
+    loadItemDetails();
+  }, [category, id, router]);
 
   async function loadItemDetails() {
-    setIsLoading(true)
-    setError(null)
-    
+    setIsLoading(true);
+    setError(null);
     try {
-      const tableName = category
-      
-      // Load the item
+      const tableName = category;
       const { data: itemData, error: itemError } = await supabase
         .from(tableName)
         .select('*')
         .eq('id', id)
-        .single()
-
-      if (itemError) throw itemError
+        .single();
+      if (itemError) throw itemError;
       if (!itemData) {
-        setError('Item not found')
-        setIsLoading(false)
-        return
+        setError('Item not found');
+        setIsLoading(false);
+        return;
       }
-
-      setItem(itemData)
-
+      setItem(itemData);
       // Calculate rank by counting items with higher Elo
       const { data: allItems, error: rankError } = await supabase
         .from(tableName)
@@ -111,8 +105,12 @@ export default function DetailsPage({
     <div className="max-w-4xl mx-auto px-4 py-8">
       <Link
         href={`/leaderboard/${category}`}
-        className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 mb-6"
+        className="inline-flex items-center gap-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-300 transition-colors mb-6 px-3 py-1 rounded-lg border border-transparent hover:border-blue-200 dark:hover:border-blue-700 bg-transparent"
+        aria-label="Back to Leaderboard"
       >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+          <path fillRule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-5-5a1 1 0 010-1.414l5-5a1 1 0 111.414 1.414L4.414 9H17a1 1 0 110 2H4.414l3.293 3.293a1 1 0 010 1.414z" clipRule="evenodd" />
+        </svg>
         Back to Leaderboard
       </Link>
 
@@ -146,17 +144,17 @@ export default function DetailsPage({
                   #{rank}
                 </div>
               </div>
-              
+
               <div className="bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-lg">
                 <div className="text-sm text-gray-600 dark:text-gray-400">Elo</div>
                 <div className="text-2xl font-bold text-gray-900 dark:text-white">
                   {formatElo(item.elo)}
                 </div>
               </div>
-              
-              <div className={`px-4 py-2 rounded-lg ${tierColor}`}>
-                <div className="text-sm opacity-90">Tier</div>
-                <div className="text-2xl font-bold">{tier}</div>
+
+              <div className="bg-gray-100 dark:bg-gray-700 px-4 py-2 rounded-lg">
+                <div className="text-sm text-gray-600 dark:text-gray-400">Tier</div>
+                <div className="text-2xl font-bold" style={{ color: tierColor }}>{tier}</div>
               </div>
             </div>
           </div>
@@ -204,17 +202,7 @@ export default function DetailsPage({
             </div>
           </div>
         </div>
-
-        <div className="mt-8 flex justify-center">
-          <Link
-            href={`/vote/${category}`}
-            className="px-8 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-lg font-semibold"
-          >
-            Vote on {category === 'cards' ? 'Cards' : 'Emotes'}
-          </Link>
-        </div>
       </div>
     </div>
   )
 }
-
